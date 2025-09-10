@@ -1,0 +1,805 @@
+$(document).ready(function() { 
+    
+    const $animationTime = 600;
+    const $resolution = $(window).width(); 
+
+    // Breakpoints
+    const $phone_sm = 420;
+    const $phone = 767;
+    const $tablet_lg = 1024;
+    const $desktop_lg = 1202;
+    const $desktop_xl = 1400;
+
+    // Funciones
+
+        // Determina si una variable NO es nula. Si es un string vacio tambien retorna false. Si es un objeto vacío también retorna false. La usaremos para comprobar que existen elementos del DOM y arreglos.
+        function var_no_null($var) { 
+
+            $type = typeof $var;
+
+            if ($type === 'undefined') {
+                return false;
+            }
+            else if ($type === 'number') {
+                return true;
+            }
+            else if ($type === 'string') {
+                return ($var.length > 0);
+            } 
+            else if ($type === 'object') {
+                return ($var != null && $var.length > 0);
+            } 
+        }
+
+    //  
+     
+   
+    // Header hamburger menu 
+        
+        $('.js-btn-hamburger').on('click', function(event) {
+            event.preventDefault();
+
+            console.log( 'click' );
+
+            $(this).removeAttr('menu-open');
+            $('body').removeAttr('menu-open');
+            $('.js-header__menu').removeAttr('menu-open');
+            $('#header').removeAttr('menu-open');
+            
+            $(this).toggleClass('active');
+            $('body').toggleClass('body-menu--open');
+            $('.js-header__menu').toggleClass('header__menu--open');
+            $('#header').toggleClass('header--fixed');
+            
+            //$(this).removeClass('active');
+            //$('body').removeClass('body-menu--open');
+            //$('.js-header__menu').removeClass('header__menu--open');
+            //$('#header').removeClass('header--fixed');
+            
+        });
+        
+        
+    //
+
+    // Header dropdown
+        $('#recomendaciones-icon').on('click', function(event) {
+            event.preventDefault();
+            var $this = $(this);
+            var $a = $this.parent('a');
+            var $submenu = $a.siblings('.sub-menu');
+
+            $this.toggleClass('active');
+            $submenu.slideToggle();
+        });
+    //
+
+    // Header search
+
+        // Header search open
+            $('#header__search__open').on('click', function(event) {
+                event.preventDefault();
+
+                $('#header__search').addClass('open');
+                // $("#search__input_site").show();
+                // $('#search__input_site').focus();
+                setTimeout(function(){
+                    $("#header__search input").filter(':visible').focus();
+                }, 500);   
+                
+
+            });
+        //        
+
+        // Header search close
+            //desktop
+            $('#header__search__close').on('click', function(event) {
+                event.preventDefault();
+                $('#header__search').removeClass('open');
+            });
+
+            // mobile
+            $('#header__search__close-mobile').on('click', function(event) {
+                event.preventDefault();
+                $('#header__search-alt').fadeOut();
+            });
+        //
+
+        // Header search open mobile. Es el boton del header en mobile, NO el que está dentro del menu oculto.
+        $('.js-header__search__open-mobile').on('click', function(event) {
+
+            event.preventDefault();
+
+            $('#header__search-alt').fadeIn();
+            
+            /*
+            setTimeout(function(){
+                $("#header__search-alt input").filter(':visible').focus();
+            }, 500);
+            */
+
+            // Lo hago de esta manera y no de la que esta arriba comentada (que es la mas logica) porque en iOS no funciona. Con esta funcion si. Lo que hace es crear un input invisible, le da focus y luego le da focus al que queremos. De esta forma se puede abrir el teclado.
+
+            // Fuente
+            
+            // https://stackoverflow.com/questions/12204571/mobile-safari-javascript-focus-method-on-inputfield-only-works-with-click
+                let headerSearchMobile_input = $("#header__search-alt input");
+                const fakeInput = document.createElement('input')
+                fakeInput.setAttribute('type', 'text')
+                fakeInput.style.position = 'absolute'
+                fakeInput.style.opacity = 0
+                fakeInput.style.height = 0
+                fakeInput.style.fontSize = '16px' // disable auto zoom
+            
+                // you may need to append to another element depending on the browser's auto 
+                // zoom/scroll behavior
+                document.body.prepend(fakeInput)
+            
+                // focus so that subsequent async focus will work
+                fakeInput.focus()
+            
+                setTimeout(() => {
+            
+                // now we can focus on the target input
+                headerSearchMobile_input.focus()
+            
+                // cleanup
+                fakeInput.remove()
+                
+                }, 1000);
+            //
+                 
+        });
+          
+        //$('.js-header__search__open-mobile').on('click', onClick(headerSearchMobile_input));
+    //  
+        
+    //
+
+    // Hero menu
+
+        const $menu_transition = 600;
+
+        // Hero menu open
+        const array = document.querySelectorAll('.js-hero__btn')
+        
+        array.forEach(element => {
+            $(element).on('click', function(event) {
+                event.preventDefault();
+                const data = $(this).data('content');
+                let label = $(this).data('label');
+                let placeholder = $(this).data('placeholder');
+                
+                $(".hero__form__label").html(label);
+                $('.js-select-location').attr('placeholder', placeholder);
+                
+                $('.hero__form__option__mx').each(reemplazarHref)
+                $('.hero__form__option').each(reemplazarHref)
+                $('.js-hero__menu').fadeIn($menu_transition);
+                $('.js-select-location').focus();
+
+                function reemplazarHref() {
+                    
+                    const href = 'https://' + window.location.hostname
+                    const lugares = '/lugares/?tipo-de-lugar=option&location=ciudades'
+                    const queHacer = '/ciudad/ciudades?recomendaciones'
+                    const ciudad = '/ciudad/ciudades'
+                    const location = $(this).children('a').data('location')
+                    switch (data) {
+                        case 'restaurantes':
+                            let url_restaurantes = href + lugares
+                            let newUrl_restaurantes = url_restaurantes.replace(/option/g, 'restaurante')
+                            let newUrl_location_restaurantes = newUrl_restaurantes.replace('ciudades', location)
+                            $(this).children('a').attr('href', newUrl_location_restaurantes)
+                            break;
+                        case 'hoteles':
+                            let url_hoteles = href + lugares
+                            let newUrl_hoteles = url_hoteles.replace(/option/g, 'hotel')
+                            let newUrl_location_hoteles = newUrl_hoteles.replace('ciudades', location)
+                            $(this).children('a').attr('href', newUrl_location_hoteles)
+                            break;
+                        case 'tacos':
+                                let url_tacos = href + lugares
+                                let newUrl_tacos = url_tacos.replace(/option/g, 'tacos')
+                                let newUrl_location_tacos = newUrl_tacos.replace('ciudades', location)
+                                $(this).children('a').attr('href', newUrl_location_tacos)
+                                break;                            
+                        case 'que-hacer':
+                            let url_queHacer = href + queHacer
+                            let newUrl_location_queHacer = url_queHacer.replace('ciudades', location)
+                            $(this).children('a').attr('href', newUrl_location_queHacer)
+                            break;
+                        case 'ciudades':
+                            let url_destinos = href + ciudad
+                            let newUrl_location_destinos = url_destinos.replace('ciudades', location)
+                            $(this).children('a').attr('href', newUrl_location_destinos)
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+        })
+
+    // Hero menu close
+        $hero_menu_btn_close = $('.js-hero__menu').find('.js-btn-close');
+        $hero_menu_btn_close.on('click', function(event) {
+            event.preventDefault();
+            $('.js-hero__menu').fadeOut($menu_transition);
+        });
+    //
+    
+//
+
+    // Btns dropdown mobile
+        $('.js-btns-dropdown').on('click', function(event) {
+            event.preventDefault();
+            var $this = $(this);
+            var $btns = $this.siblings('.js-btns');
+
+            $btns.slideToggle($animationTime);
+            $this.toggleClass('active');
+        });
+    
+    //
+
+    // Last location Swiper
+
+        if ($resolution < $phone) {
+            if ($('.js-swiper-container').length > 0) {
+                var mySwiper = new Swiper ('.js-swiper-container', {
+                    // Optional parameters
+                    loop: true,
+                    slidesPerView: 2,
+                    autoplay: {
+                        delay: 3000,
+                    },
+                    breakpoints: {
+                        767: {
+                            slidesPerView: 2,
+                        },
+                        1024: {
+                            slidesPerView: 3,
+                        },
+                        1202: {
+                            slidesPerView: 4,
+                        },
+                    },
+    
+                    // If we need pagination
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                    },
+                });
+            }
+        }
+        else {
+            $('.js-swiper-container').removeClass('js-swiper-container');
+        }
+
+    //
+
+    // Filters Map
+
+        const $filters = $('#filters');
+        const $filters_content = $filters.children('.filters__content');
+
+        // Mobile
+
+            if($resolution < $tablet_lg) {
+
+                // Open Map
+                $('#map-map').on('click', function(e) {
+                    e.preventDefault();
+                    $filters.removeClass('active');
+                });
+                    
+                // Close Map
+                $('#map-list').on('click', function(e) {
+                    e.preventDefault();
+                    $filters.addClass('active');
+                });
+
+            }
+
+        //
+
+    //
+    
+    // Close documents
+        $(document).on('click', function(e) {
+            // Header hamburger menu close
+            if (!$(e.target).is('.js-btn-hamburger')) {
+                if (!$(e.target).is('.header .header__content, .header .header__content *')) {
+                    $('.js-btn-hamburger').removeClass('active');
+                    $('body').removeClass('body-menu--open');
+                    $('.js-header__menu').removeClass('header__menu--open');
+                    $('#header').removeClass('header--fixed');
+                }
+            }
+        });
+    //
+
+    // Buscador con palabras relacionadas JS alternativo. Se abre menu al hacer focus en el input
+
+        // Reemplaza un caracter especial por su similar común.
+        function remove_accent($str) {
+            var $map = {'À':'A','Á':'A','Â':'A','Ã':'A','Ä':'A','Å':'A','Æ':'AE','Ç':'C','È':'E','É':'E','Ê':'E','Ë':'E','Ì':'I','Í':'I','Î':'I','Ï':'I','Ð':'D','Ñ':'N','Ò':'O','Ó':'O','Ô':'O','Õ':'O','Ö':'O','Ø':'O','Ù':'U','Ú':'U','Û':'U','Ü':'U','Ý':'Y','ß':'s','à':'a','á':'a','â':'a','ã':'a','ä':'a','å':'a','æ':'ae','ç':'c','è':'e','é':'e','ê':'e','ë':'e','ì':'i','í':'i','î':'i','ï':'i','ñ':'n','ò':'o','ó':'o','ô':'o','õ':'o','ö':'o','ø':'o','ù':'u','ú':'u','û':'u','ü':'u','ý':'y','ÿ':'y','Ā':'A','ā':'a','Ă':'A','ă':'a','Ą':'A','ą':'a','Ć':'C','ć':'c','Ĉ':'C','ĉ':'c','Ċ':'C','ċ':'c','Č':'C','č':'c','Ď':'D','ď':'d','Đ':'D','đ':'d','Ē':'E','ē':'e','Ĕ':'E','ĕ':'e','Ė':'E','ė':'e','Ę':'E','ę':'e','Ě':'E','ě':'e','Ĝ':'G','ĝ':'g','Ğ':'G','ğ':'g','Ġ':'G','ġ':'g','Ģ':'G','ģ':'g','Ĥ':'H','ĥ':'h','Ħ':'H','ħ':'h','Ĩ':'I','ĩ':'i','Ī':'I','ī':'i','Ĭ':'I','ĭ':'i','Į':'I','į':'i','İ':'I','ı':'i','Ĳ':'IJ','ĳ':'ij','Ĵ':'J','ĵ':'j','Ķ':'K','ķ':'k','Ĺ':'L','ĺ':'l','Ļ':'L','ļ':'l','Ľ':'L','ľ':'l','Ŀ':'L','ŀ':'l','Ł':'L','ł':'l','Ń':'N','ń':'n','Ņ':'N','ņ':'n','Ň':'N','ň':'n','ŉ':'n','Ō':'O','ō':'o','Ŏ':'O','ŏ':'o','Ő':'O','ő':'o','Œ':'OE','œ':'oe','Ŕ':'R','ŕ':'r','Ŗ':'R','ŗ':'r','Ř':'R','ř':'r','Ś':'S','ś':'s','Ŝ':'S','ŝ':'s','Ş':'S','ş':'s','Š':'S','š':'s','Ţ':'T','ţ':'t','Ť':'T','ť':'t','Ŧ':'T','ŧ':'t','Ũ':'U','ũ':'u','Ū':'U','ū':'u','Ŭ':'U','ŭ':'u','Ů':'U','ů':'u','Ű':'U','ű':'u','Ų':'U','ų':'u','Ŵ':'W','ŵ':'w','Ŷ':'Y','ŷ':'y','Ÿ':'Y','Ź':'Z','ź':'z','Ż':'Z','ż':'z','Ž':'Z','ž':'z','ſ':'s','ƒ':'f','Ơ':'O','ơ':'o','Ư':'U','ư':'u','Ǎ':'A','ǎ':'a','Ǐ':'I','ǐ':'i','Ǒ':'O','ǒ':'o','Ǔ':'U','ǔ':'u','Ǖ':'U','ǖ':'u','Ǘ':'U','ǘ':'u','Ǚ':'U','ǚ':'u','Ǜ':'U','ǜ':'u','Ǻ':'A','ǻ':'a','Ǽ':'AE','ǽ':'ae','Ǿ':'O','ǿ':'o'};
+
+            var $res = '';
+            var $str_length = $str.length;
+
+            for (var $i = 0; $i < $str_length; $i++) {
+                // $str.charAt($i) devuelve el caracter del indice $i de $str.
+                $c = $str.charAt($i);
+
+                // Si $c está en el array de caracteres especiales, concatena su caracter sin acento al string final ($res). Sino concatena $c.
+                // El operador OR lógico ( ||) devuelve el valor de su segundo operando, si el primero es falso; de lo contrario, se devuelve el valor del primer operando.
+                // Ver https://stackoverflow.com/questions/2100758/javascript-or-variable-assignment-explanation
+                $res += $map[$c] || $c;
+            }
+            return $res;
+        }
+        /* Testeo de función remove_accent()
+            var a = 'ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇ ç';
+            console.log(remove_accent(a));
+        */
+
+        const $time_animate_datalist = 500;
+        const $input_search_substr_alt = $('.js-select-location');
+        const $input_search_substr = $('.js-select-location');
+
+        // Datalist open. El menu se abre si hago focus en el input.
+        $input_search_substr_alt.focus(function(event) {
+            event.preventDefault();
+            var $this = $(this);
+            var $form = $this.parents('.js-hero__form');
+            var $datalist = $form.find('.js-datalist');
+
+            if (!$datalist.is(':visible')) {
+                $datalist.slideDown($time_animate_datalist);
+            }
+        });
+
+        // Funcionalidad palabras relacionadas
+        $input_search_substr.keyup(function() {
+            var $this = $(this);
+            var $val = $this.val();
+            var $val_whitout_accent = remove_accent($val);
+            var $val_lower = $val_whitout_accent.toLowerCase();              
+            var $form = $this.parents('.js-hero__form');
+            var $datalist = $form.find('.js-datalist');
+            var $hay_uno = false;
+
+            // Todos los li del datalist
+            var $options = $datalist.find('li');
+
+            // Item "No se han encontrado resultados" 
+            var $li_no_find = $datalist.find('.js-li-no-find');
+
+            // Vuelvo a ponerle borde a todos los li. Porque cuando estoy buscando y borro, el item se queda sin borde, entonces le saco la clase border-none cada vez que vuelvo a tipear.
+            $options.removeClass('border-none');
+
+            // Oculto el "No se han encontrado resultados"
+            $li_no_find.hide();
+            
+            $options.each(function(){
+                var $option = $(this);
+                var $option_val = $option.find('a').text();
+                var $option_val_whitout_accent = remove_accent($option_val);
+                var $option_val_lower = $option_val_whitout_accent.toLowerCase();
+
+                // Si la palabra que estoy escribiendo es una subcadena de la opción. indexOf devuelve -1 si no encuentra la subcadena.
+                if ($option_val_lower.indexOf($val_lower) >= 0) {
+                    $option.show();
+                    $hay_uno = true;
+                }
+                else {
+                    $option.hide();
+                }
+            }); 
+
+            // Si está abierto el menú
+            if ($datalist.is(':visible')) {
+                // Si se borró todo
+                if ($val == '') {
+                    $datalist.slideUp($time_animate_datalist);
+                }
+            }
+            else {
+                $datalist.slideDown($time_animate_datalist); 
+            }
+
+            // Si por lo menos hay una palabra relacionada
+            if ($hay_uno) {
+                // Al último li visible le saco el borde
+                $datalist.find('li:visible:last').addClass('border-none');
+            }
+            else {
+                $li_no_find.show();
+            }
+               
+        });
+
+        // Datalist close
+        $input_search_substr.focusout(function(event) {
+            event.preventDefault();
+            var $this = $(this);
+            var $form = $this.parents('.js-hero__form');
+            var $datalist = $form.find('.js-datalist');
+
+            if ($datalist.is(':visible')) {
+                $datalist.slideUp($time_animate_datalist);
+            }
+        });
+    //   
+
+    // iOS app
+        $('.js-close-ios-app').on('click', function(event) {
+            event.preventDefault();
+            console.log('click');
+            $('#ios-app-block').addClass('d-none');
+            $('#whatsapp-btn').removeClass('dialog-content--ios');
+            $('.footer').removeClass('footer--newsletter');
+            sessionStorage["PopupShown"] = 'no';
+        });
+    //
+
+    // Estilos a botón de MercadoPago
+    $( ".mercado-pago-boton button" ).addClass( "btn btn--primary btn--uppercase btn--sm" );
+
+
+    // Lightbox
+
+        const $lightbox = $('.js-lightbox');
+        const LIGHTBOX_TRANSITION = $lightbox.data('lightbox-transition');
+        const $lightbox_open = $('.js-lightbox-open');
+        const $lightbox_close = $('.js-lightbox-close');
+
+        if (var_no_null($lightbox) && var_no_null(LIGHTBOX_TRANSITION) && var_no_null($lightbox_open) && var_no_null($lightbox_close)) {
+
+            // Lightbox open
+            $lightbox_open.on('click', function(event) {
+                event.preventDefault();
+                $lightbox.fadeIn(LIGHTBOX_TRANSITION);
+            });
+    
+            // Lightbox close
+            $lightbox_close.on('click', function(event) {
+                event.preventDefault();
+                $lightbox.fadeOut(LIGHTBOX_TRANSITION);
+            });
+
+        }
+
+    // 
+
+    // Steps event
+
+        function stepsEvent_nextStep ($step, $step_indexHtml, $effect, TRANSITION) {
+
+            const $step_index = $step.data('step');
+            const $step_next = $step.siblings('*[data-step="' + ($step_index + 1) + '"]');
+
+            // Oculto el step
+                if ($effect == 'fade') {
+                    $step.fadeOut(TRANSITION);
+                }
+                else if ($effect == 'slide') {
+                    $step.slideUp(TRANSITION);
+                }
+                else {
+                    $step.hide(TRANSITION);
+                }
+
+                $step.removeClass('active');
+            //
+
+            setTimeout(function() {
+
+                // Muestro el step_next
+                    if ($effect == 'fade') {
+                        $step_next.fadeIn(TRANSITION);
+                    }
+                    else if ($effect == 'slide') {
+                        $step_next.slideDown(TRANSITION);
+                    }
+                    else {
+                        $step_next.show(TRANSITION);
+                    }
+                    $step_next.addClass('active');
+                //
+
+                // Incremento el nro del step
+                $step_indexHtml.html($step_index + 1);
+
+            }, TRANSITION);  
+
+
+        }
+
+        // Componente
+        const $stepsEvent = $('.js-steps-event');
+
+        // Atributos para la animación
+        const $stepsEvent_TRANSITION = $stepsEvent.data('steps-event-transition');
+        const $stepsEvent_TRANSITION_SUBMIT = $stepsEvent.data('steps-event-transition-submit');
+        var $stepsEvent_effect = $stepsEvent.data('steps-event-effect');
+        $stepsEvent_effect = var_no_null($stepsEvent_effect) ? $stepsEvent_effect : 'No hay atributo';
+
+        if (var_no_null($stepsEvent) && var_no_null($stepsEvent_TRANSITION) && var_no_null($stepsEvent_TRANSITION_SUBMIT) && var_no_null($stepsEvent_effect)) {
+
+            const $stepsEvent_index = $stepsEvent.find('.js-step-index');
+            const $stepsEvent_lenght = $stepsEvent.find('.js-steps-lenght');
+            const $stepsEvent_container = $stepsEvent.find('.js-steps-container');
+            const $stepsEvent_stepName = 'js-step';
+            const $stepsEvent_step = $stepsEvent_container.find('.' + $stepsEvent_stepName);
+
+            if (var_no_null($stepsEvent_container) && var_no_null($stepsEvent_step)) {
+
+                // Imprimo la cantidad de steps
+                var $stepEvent_lenghtPrint = $stepsEvent_step.length - 1;
+                $stepsEvent_lenght.html($stepEvent_lenghtPrint.toString());
+                const $stepsEvent_select = $stepsEvent.find('.js-step-select');
+                const $stepsEvent_btnNext = $stepsEvent.find('.js-btn-next');
+
+                if (var_no_null($stepsEvent_btnNext)) {
+
+                    $stepsEvent_btnNext.on('click', function(event) {
+                        event.preventDefault();
+                        const $this = $(this);
+                        const $this_parentStep = $this.parents('.' + $stepsEvent_stepName);
+                        const $this_parentStep_index = $this_parentStep.data('step');
+
+                        // Si el botón es un radio button
+                        var $this_childRadio = $this.find('input[type=radio]');
+                        if (var_no_null($this_childRadio)) {
+                            $this_childRadio.prop("checked", true);
+                        }
+
+                        stepsEvent_nextStep ($this_parentStep, $stepsEvent_index, $stepsEvent_effect, $stepsEvent_TRANSITION);                    
+
+                        // Envío el formulario después de un tiempo
+                        if($this.hasClass('js-last-step')) {
+                            $('.js-steps-pasos').fadeOut($stepsEvent_TRANSITION);
+                            setTimeout(function() { $stepsEvent.submit(); }, $stepsEvent_TRANSITION_SUBMIT);
+                        }
+
+                    });
+
+                }
+
+                if (var_no_null($stepsEvent_select)) {
+
+                    $stepsEvent_select.on('change', function () {
+                        const $this = $(this);
+                        const $this_parentStep = $this.parents('.' + $stepsEvent_stepName);
+                        const $this_parentStep_index = $this_parentStep.data('step');
+
+                        $('.js-headline-step-1').fadeOut($stepsEvent_TRANSITION);
+
+                        stepsEvent_nextStep ($this_parentStep, $stepsEvent_index, $stepsEvent_effect, $stepsEvent_TRANSITION);
+
+                    });
+
+                }
+
+            }
+            else {
+                alert('No hay steps en este componente.');
+            }
+
+        }
+
+    //
+
+    // Lightbox respuestas
+
+        // Componente
+        const $lightboxRespuestas = $('.js-lightbox-respuestas');
+
+        // Elementos claves
+        const $lightboxRespuestas_pregunta = $lightboxRespuestas.find('.js-pregunta');
+
+        if (var_no_null($lightboxRespuestas) && var_no_null($lightboxRespuestas_pregunta)) {
+
+            // Recorro todas las preguntas
+            $lightboxRespuestas_pregunta.each(function() {
+                const $pregunta = $(this);
+                const $pregunta_respuesta = $pregunta.find('.js-respuesta');
+                const $pregunta_cantTotalRespuestas = $pregunta.data('cant-total-respuestas');
+
+                if (var_no_null($pregunta_respuesta)) {
+
+                    // Recorro todas las respuestas de cada pregunta
+                    $pregunta_respuesta.each(function() {
+                        const $respuesta = $(this);
+                        const $respuesta_cantRespuestas = $respuesta.data('cant-respuestas');
+                        const $respuesta_barraColor = $respuesta.find('.barra__color');
+
+                        // Le doy el ancho al color de la barra
+                        var $respuesta_cantRespuestas_porcentaje = ($respuesta_cantRespuestas * 100) / $pregunta_cantTotalRespuestas;
+                        $respuesta_barraColor.css({
+                            "width": $respuesta_cantRespuestas_porcentaje + '%'
+                        });
+
+                    });
+
+                }
+            });
+
+        }
+
+    //
+
+    // Click en la ciudad del lightbox de restaurantes, etc, cierra el lightbox
+
+        var $hero__form__option__a = $('.js-hero__form__option__a');
+
+        if (var_no_null($hero__form__option__a)) {
+
+            $hero__form__option__a.on('click', function(event) {
+                const $this = $(this);
+                const $this_parentLightbox = $this.parents('.js-hero__menu');
+
+                $this_parentLightbox.fadeOut($menu_transition);
+
+                console.log('close');
+
+            });
+        }
+
+    //
+
+    // Datalist del buscador
+
+        const $search_input = $('#keyword');
+        const $search_datalist = $('#datafetch');
+        const $search_datalist_TRANSITION = $time_animate_datalist;
+
+        // Solo funciona para desktop
+        if ($tablet_lg <= $resolution) {
+        
+            // Se abre el datalist del buscador al empezar a escribir
+            $search_input.keyup(function() {
+
+                var $this = $(this);
+                var $val = $this.val();
+        
+                // Si está abierto el menú
+                if ($search_datalist.is(':visible')) {
+                    // Si se borró todo, oculto el datalist
+                    if ($val == '') {
+                        $search_datalist.slideUp($search_datalist_TRANSITION);
+                    }
+                }
+                // Si no está abierto, abro el datalist
+                else {
+                    $search_datalist.slideDown($search_datalist_TRANSITION); 
+                }
+
+            });
+        
+            /*
+            // Cierro datalist al hacer click fuera del buscador
+            $search_input.focusout(function(event) {
+                event.preventDefault();
+                var $this = $(this);
+                var $form = $this.parents('.form');
+                var $datalist = $form.find('.js-datalist');
+
+                if ($search_datalist.is(':visible')) {
+                    $search_datalist.slideUp($search_datalist_TRANSITION);
+                }
+            });
+            */
+
+        // Llave que cierra el if de la resolucion
+        }
+
+    //
+
+    // Horarios
+
+        let horarios = $('.js-horarios');
+
+        if (horarios) {
+
+            let time = 500;
+
+            let horarios_dropdownOpen = horarios.find('.js-dropdown-open');
+            let horarios_dropdownContent = horarios.find('.js-dropdown-content');
+            let horarios_dropdownIcon = horarios.find('.js-icon');
+
+            horarios_dropdownIcon.css('transition', 'all ' + time + 'ms ease-in-out');
+
+            horarios_dropdownOpen.on('click', function() {
+
+                if (horarios_dropdownContent.hasClass('open')) {
+
+                    horarios_dropdownContent.slideUp(time);
+                    horarios_dropdownContent.removeClass('open');
+                    horarios_dropdownIcon.removeClass('rotate');
+
+                }
+                else {
+
+                    horarios_dropdownContent.slideDown(time);
+                    horarios_dropdownContent.addClass('open');
+                    horarios_dropdownIcon.addClass('rotate');
+
+                }
+
+            });
+
+            /*
+            // Si esta abierto y clickeo afuera se cierra
+            $(window).on('click', function(event) {
+
+                if (horarios_dropdownContent.hasClass('open')) {
+                    
+                    // Si no hago click en el btn hamburger
+                    if ( ! $(event.target).is('.js-dropdown-open') ) {
+
+                        if ( ! $(event.target).is('.js-dropdown-content, .js-dropdown-content *') ) {
+
+                            horarios_dropdownContent.slideUp(time);
+                            horarios_dropdownContent.removeClass('open');
+                            horarios_dropdownIcon.removeClass('rotate');
+                            
+                        }
+
+                    }
+
+                }
+
+            });
+            */
+
+        }
+
+    //
+
+    // Dialog content
+
+        let dialogContent = $('.js-dialog-content');
+
+        if (dialogContent.length > 0) {
+
+            let dialogBox = dialogContent.parent('.js-dialog-box');
+            let dialogContent_btnClose = dialogContent.find('.js-dialog-content__btn-close');
+
+            let dialogContentApp = $('#dialog-content--app');
+            let dialogContentNewsletter = $('#dialog-content--newsletter');
+
+            // Cerrar dialogContent
+            dialogContent_btnClose.on('click', function() {
+
+                let this_dialogContent = $(this).parent('.js-dialog-content');
+                this_dialogContent.addClass('dialog-content--none');
+
+                // Si los dos estan ocultos, oculto el dialogBox
+                if ( dialogContentApp.hasClass('dialog-content--none') && dialogContentNewsletter.hasClass('dialog-content--none') ) {
+                    dialogBox.addClass('dialog-box--none');
+                }
+
+            });
+
+            // Cambiar URL dialogContentApp
+
+        // // Detectar si se está utilizando iOS
+        // if (/(iPhone|iPad|iPod)/.test(navigator.userAgent) || navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+        //     // Si se está utilizando iOS, cambiar el href del enlace a una URL específica para iOS
+        //     document.getElementById('dialog-content--app__link').href = 'https://apps.apple.com/mx/app/mb-marco-beteta/id6444135252';
+        // }
+        // // Detectar si se está utilizando Android
+        // else if (/Android/.test(navigator.userAgent)) {
+        //     // Si se está utilizando Android, cambiar el href del enlace a una URL específica para Android
+        //     document.getElementById('dialog-content--app__link').href = 'https://play.google.com/store/apps/details?id=com.mangoodev.mbeteta_app&pli=1';
+        // }
+
+        }
+
+    //
+
+});
